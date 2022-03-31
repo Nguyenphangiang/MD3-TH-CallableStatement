@@ -199,6 +199,39 @@ public class UserDAO  implements IUserDAO{
     }
 
     @Override
+    public void insertUpdateUseTransaction() {
+        try(Connection connection = getConnection();
+        Statement statement = connection.createStatement();
+        PreparedStatement psInsert = connection.prepareStatement(SQL_INSERT);
+        PreparedStatement psUpdate = connection.prepareStatement(SQL_UPDATE)){
+            statement.execute(SQL_TABLE_DROP);
+            statement.execute(SQL_TABLE_CREATE);
+
+            connection.setAutoCommit(false);
+
+            psInsert.setString(1,"Tuan");
+            psInsert.setBigDecimal(2,new BigDecimal(10));
+            psInsert.setTimestamp(3,Timestamp.valueOf(LocalDateTime.now()));
+            psInsert.execute();
+
+            psInsert.setString(1,"Giang");
+            psInsert.setBigDecimal(2,new BigDecimal(20));
+            psInsert.setTimestamp(3,Timestamp.valueOf(LocalDateTime.now()));
+            psInsert.execute();
+
+            psUpdate.setBigDecimal(1,new BigDecimal(999.99));
+            psUpdate.setString(2,"Giang");
+            psUpdate.execute();
+
+            connection.commit();
+            connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void insertUpdateWithoutTransaction() {
         try(Connection connection = getConnection();
         Statement statement = connection.createStatement();
