@@ -84,6 +84,9 @@ public class UserServlet extends HttpServlet {
         User user = new User("jack","jack@gmail.com","china");
         int[] permission = {1,2,4};
         userDAO.addUserTransaction(user,permission);
+        User user1 = new User("QuanChi","Chi@gmail.com","taiwan");
+        int[] permission1 = {1,2,3};
+        userDAO.addUserTransaction(user1,permission1);
     }
 
     private void listUser(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException, SQLException {

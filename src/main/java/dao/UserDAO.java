@@ -146,7 +146,7 @@ public class UserDAO  implements IUserDAO{
             pstmt = connection.prepareStatement(INSERT_USERS_SQL,Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1,user.getName());
             pstmt.setString(2,user.getEmail());
-            pstmt.setString(3,user.getCountry());
+            pstmt.setString(4,user.getCountry());
             int rowAffected = pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             int userId = 0;
@@ -170,8 +170,10 @@ public class UserDAO  implements IUserDAO{
                 if (connection != null)
                     connection.rollback();
             } catch (SQLException e){
+                System.err.println("------------- Lỗi Ở ĐÂY----------");
                 System.out.println(e.getMessage());
             }
+            System.err.println("------------- Lỗi Ở ĐÂY----------");
             System.out.println(ex.getMessage());
         } finally {
             try {
@@ -180,6 +182,7 @@ public class UserDAO  implements IUserDAO{
                 if (pstmtAssignment != null)pstmtAssignment.close();
                 if (connection != null)connection.close();
             } catch (SQLException e) {
+                System.err.println("------------- Lỗi Ở ĐÂY----------");
                 System.out.println(e.getMessage());
             }
         }
