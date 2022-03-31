@@ -87,7 +87,7 @@ public class UserDAO  implements IUserDAO{
     public List<User> selectAllUsers(){
         List<User> users = new ArrayList<>();
         try(Connection connection = getConnection();
-        PreparedStatement preparedStatement = getConnection().prepareStatement(SELECT_ALL_USERS)){
+        PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_USERS)){
             System.out.println(preparedStatement);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()){
@@ -132,20 +132,7 @@ public class UserDAO  implements IUserDAO{
         return user;
     }
 
-    @Override
-    public void insertUserStore(User user) {
-        String query = "{CALL insert_user(?,?,?)}";
-        try(Connection connection = getConnection();
-        CallableStatement callableStatement = connection.prepareCall(query)){
-            callableStatement.setString(1,user.getName());
-            callableStatement.setString(2,user.getEmail());
-            callableStatement.setString(3,user.getCountry());
-            System.out.println(callableStatement);
-            callableStatement.executeUpdate();
-        } catch (SQLException e){
-            printSQLException(e);
-        }
-    }
+
 
     @Override
     public void addUserTransaction(User user, int[] permission) {
@@ -262,7 +249,7 @@ public class UserDAO  implements IUserDAO{
     public boolean updateUser(User user) throws SQLException{
         boolean rowUpdated;
         try(Connection connection = getConnection();
-        PreparedStatement statement = getConnection().prepareStatement(UPDATE_USERS_SQL)){
+        PreparedStatement statement = connection.prepareStatement(UPDATE_USERS_SQL)){
             statement.setString(1,user.getName());
             statement.setString(2,user.getEmail());
             statement.setString(3,user.getCountry());
@@ -285,5 +272,65 @@ public class UserDAO  implements IUserDAO{
                 }
             }
         }
+    }
+
+    @Override
+    public void insertUserStore(User user) {
+        String query = "{CALL insert_user(?,?,?)}";
+        try(Connection connection = getConnection();
+            CallableStatement callableStatement = connection.prepareCall(query)){
+            callableStatement.setString(1,user.getName());
+            callableStatement.setString(2,user.getEmail());
+            callableStatement.setString(3,user.getCountry());
+            System.out.println(callableStatement);
+            callableStatement.executeUpdate();
+        } catch (SQLException e){
+            printSQLException(e);
+        }
+    }
+
+    @Override
+    public List<User> selectUserStore() throws SQLException {
+        List<User> users = new ArrayList<>();
+        String query = "{CALL getAllUser()}";
+        try(Connection connection = getConnection();
+        CallableStatement callableStatement = connection.prepareCall(query)){
+            System.out.println(callableStatement);
+            ResultSet rs = callableStatement.executeQuery();
+            while (rs.next()){
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String country = rs.getString("country");
+                users.add(new User(id,name,email,country));
+            }
+        } return users;
+    }
+
+    @Override
+    public boolean editUserStore(int id,User user) throws SQLException {
+        boolean rowUpdate;
+        String query = "{CALL editUserById(?,?,?,?)}";
+        try(Connection connection = getConnection();
+        CallableStatement callableStatement = connection.prepareCall(query)){
+            callableStatement.setInt(1,id);
+            callableStatement.setString(2,user.getName());
+            callableStatement.setString(3,user.getEmail());
+            callableStatement.setString(4,user.getCountry());
+            rowUpdate = callableStatement.executeUpdate() > 0;
+        }
+        return rowUpdate;
+    }
+
+    @Override
+    public boolean deleteUserStore(int id) throws SQLException {
+        boolean rowDelete;
+        String query = "{CALL deleteUserById(?)}";
+        try(Connection connection = getConnection();
+        CallableStatement callableStatement = connection.prepareCall(query)){
+            callableStatement.setInt(1,id);
+            rowDelete = callableStatement.executeUpdate() > 0;
+        }
+        return rowDelete;
     }
 }
